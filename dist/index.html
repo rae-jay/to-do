@@ -1,0 +1,122 @@
+<!-- id currently for things being grabbed by js, but NOT for css?? -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="main.js" defer></script>
+</head>
+<body>
+    <div class="content">
+        <header>
+            <div class="branding"><img src="../src/graphics/land-plots.svg" width="10" height="auto" alt="logo">
+                Taskadoo</div>
+            <div id="dateNow">the date maybe?</div>
+        </header>
+        
+        <div class="sidebar">
+            <div class="projectList"></div>
+            <div class="addButtons">
+                <img id="addProjectButton" src="../src/graphics/addBtns/folder-plus-outline.svg" width="10" height="auto" alt="">
+                <img id="addTaskButton" src="../src/graphics/addBtns/plus-circle-outline.svg" width="10" height="auto" alt="">
+            </div>
+            <!-- <div class="projectGroup">
+                <h2>Upcoming</h2>
+                <div>Today</div>
+                <div>This Week</div>
+            </div>
+            <div class="projectGroup">
+                <h2>Projects</h2>
+                <div>General</div>
+                <div>Personal</div>
+            </div> -->
+        </div>
+
+        <div class="mainContent">
+            <!-- title, description, priority, category, subTasks, dueDate -->
+            <!-- action="javascript:;" method="post" onsubmit="submitForm()" -->
+            <!-- label: for=(input id), input= (?required) type id name -->
+            <!-- <form action="">
+                <!- - PROBABLY generating this from the JS because of the projects/subtasks? - ->
+                    <!- - <label for="taskTitle"></label> - ->
+                <input required type="text" id="taskTitle" name="title">
+
+                <!- - <label for="taskDate"></label> - ->
+                <input required type="date" id="taskDate" name="date">
+
+                <!- - category needs to pick FROM a specific pool of projects - ->
+                    <!- - <label for="taskCategory"></label> - ->
+                <select id="taskCategory" name="category">
+                    <option value="x">Example Projecttttttttt</option>
+                    <option value="y">Example Project</option>
+                </select>
+
+                <!- - priority should have a default, but what format?? - ->
+                    <!- - <label for="taskPriority"></label> - ->
+                <select id="taskPriority" name="priority">
+                    <option value="0">Low</option>
+                    <option value="1">Medium</option>
+                    <option value="2">High</option>
+                </select>
+
+                    <!- - <label for="taskDesc"></label> - ->
+                <textarea id="taskDesc" name="desc" cols="30" rows="4">
+
+                </textarea>
+
+
+                
+
+                <!- - subtasks is gonna be a PAIN because it needs to like.
+                you can put in one. but then if you do, new input for another one
+                up to like, a cap, maybe - ->
+                    <!- - <label for="taskSubtask0"></label> - ->
+                <input type="" id="taskSub0" name="sub0">
+
+                <button type="submit">sub</button>
+            </form> -->
+
+            <!-- <h1>Personal</h1>
+            <div class="taskObject">
+                <div class="taskMain">
+                    <img src="../src/graphics/checkbox-blank-circle-outline.svg" width="10" height="auto" alt="">
+                    <div class="taskTitle" >Do Something</div>
+                    <div>Mon, 7/4/2057</div>
+                </div>
+                <div class="taskExtra">
+                    <div>Description text, elaborating on the thing to do, which can be sort of long. Some sort of maxiumum character limit, though.</div>
+                    <div class="subTask">
+                        <img src="../src/graphics/checkbox-blank-outline.svg" width="10" height="auto" alt="">
+                        <div>Subtask name</div>
+                    </div>
+                    <div class="subTask">
+                        <img src="../src/graphics/checkbox-blank-outline.svg" width="10" height="auto" alt="">
+                        <div>Subtask name</div>
+                    </div>
+                    <div class="subTask">
+                        <img src="../src/graphics/checkbox-blank-outline.svg" width="10" height="auto" alt="">
+                        <div>Subtask name</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="taskObject">
+                <div class="taskMain">
+                    <img src="../src/graphics/checkbox-blank-circle-outline.svg" width="10" height="auto" alt="">
+                    <div class="taskTitle" >Do Something</div>
+                    <div>Mon, 7/4/2057</div>
+                </div>
+                <div class="taskExtra">
+                    <div>Description text, elaborating on the thing to do, which can be sort of long. Some sort of maxiumum character limit, though.</div>
+                    <div class="subTask">
+                        <img src="../src/graphics/checkbox-blank-outline.svg" width="10" height="auto" alt="">
+                        <div>Subtask name</div>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+    </div>
+</body>
+</html>

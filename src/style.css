@@ -1,0 +1,265 @@
+/* clears */
+body, h2, h1{
+    margin: 0;
+}
+
+/* and setup */
+@font-face{
+    font-family: "Roboto-Reg";
+    src: 
+    url("./graphics/fonts/roboto-regular-webfont.woff2") format(woff2),
+    url("./graphics/fonts/roboto-regular-webfont.woff") format(woff);
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face{
+    font-family: "Roboto-Light";
+    src: 
+    url("./graphics/fonts/roboto-thin-webfont.woff2") format(woff2),
+    url("./graphics/fonts/roboto-thin-webfont.woff") format(woff);
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face{
+    font-family: "Roboto-Med";
+    src: 
+    url("./graphics/fonts/roboto-medium-webfont.woff2") format(woff2),
+    url("./graphics/fonts/roboto-medium-webfont.woff") format(woff);
+    font-weight: normal;
+    font-style: normal;
+}
+
+:root{
+    box-sizing: border-box;
+
+    font-family: "Roboto-Reg", Arial, Helvetica, sans-serif;
+}
+
+
+
+
+.content{
+    height: max(100vh, 12rem);
+    width: max(100vw, 100ch);
+
+    display: grid;
+    grid-template-columns: 25ch 1fr;
+
+    grid-template-rows: auto 1fr;
+
+}
+
+
+header{
+    grid-column: span 2;
+
+    /* k i've just noticed that for some reason having this padding makes the page overflow
+    a tiny bit to the right?? 
+    but not if it zooms out a bit. BUT it still has room to shrink 
+    i could probably hack it by padding the insides only but that SHOULDNT BE NECESSARY*/
+    padding: 1.5ch;
+    /* so this right padding is an extra hacky way to just help it not look as bad but
+    theres still a SCROLL BAR WHERE THERE SHOULDNT BE */
+    padding-right: 3ch;
+
+    font-size: 1.5rem;
+
+
+    display: flex;
+    justify-content: space-between;
+    
+    /* temp */
+    background-color: rgb(161, 231, 231);
+}
+
+/* contains logo image and name */
+.branding{
+    font-family: "Roboto-Med", Arial, Helvetica, sans-serif;
+
+    /* this doesn't seem necessary but does instantaneously make them line up neatly
+    whereas otherwise they were unaligned vertically. so */
+    display: flex;
+    gap: 0.2ch;
+}
+
+.branding > img{
+    width: 2ch;
+    height: auto;
+}
+
+
+
+.sidebar{
+    display: flex;
+    flex-direction: column;
+
+    /* justify-content: space-between; */
+
+
+    padding: 3.5ch 2ch 3.5ch 3.5ch;
+
+    background-color: rgb(219, 250, 255)
+}
+
+.projectList{
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.sidebar h2{
+    /* font-family: "Roboto-Med", Arial, Helvetica, sans-serif;
+    font-weight: normal; */
+    font-size: 1rem;
+
+    /* every time i bold things in roboto i feel it looks just a lil weird spacing-wise */
+    letter-spacing: 0.07ch;
+}
+
+.projectGroup{
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    margin-bottom: 0.5rem;
+}
+
+/* the new-task/new-project buttons */
+.addButtons{
+    padding-top: 5rem;
+
+    display: flex;
+    /* justify-content: end; */
+    gap: 2ch;
+}
+
+.addButtons > img{
+    width: 4ch;
+    height: auto;
+}
+
+
+
+
+
+.mainContent{
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+
+    padding: 5ch;
+    padding-top: 7ch;
+
+    max-width: 85ch;
+
+    
+}
+
+.mainContent > h1{
+    font-size: 1.5rem;
+}
+
+/* the check/title/date part of a task */
+.taskMain{
+    display: grid;
+    grid-template-columns: 3ch 1fr 15ch;
+    gap: 1.5ch;
+
+    padding: 1ch;
+    border-radius: 7px;
+    /* this padding is because of the priority line */
+    padding-left: 2.5ch;
+    box-shadow: inset rgb(136, 185, 90) 30px 0 0 -20px;
+
+    background-color: rgb(218, 241, 197);
+}
+
+.taskMain > img{
+    width: 3ch;
+    height: auto;
+}
+
+.taskMain .taskTitle{
+    font-size: 1.25rem;
+}
+
+/* the stuff below main task, descriptions/subtasks */
+.taskExtra{
+    display: flex;
+    flex-direction: column;
+
+    padding: 1rem 6ch 0rem 4ch;
+
+    gap: 2ch;
+
+    /* color: rgb(40, 40, 40); */
+    /* background-color: gainsboro; */
+}
+
+/* the subtasks */
+.subTask{
+    display: flex;
+
+    gap: 1ch;
+}
+
+.subTask > img{
+    width: 2ch;
+    height: auto;
+}
+
+
+
+/* this needs like. much reworking. but. rn more for function */
+form{
+    display: grid;
+
+    grid-template-columns: 24ch 16ch;
+    gap: 1ch;
+
+
+    /* width: 350px; */
+}
+
+#taskDesc, #taskSub0{
+    grid-column: span 2;
+}
+
+
+input, select, textarea{
+    font-size: 1rem;
+}
+
+select{
+    /* width: 80px; */
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+textarea{
+    resize: none;
+}
+
+/* this is the div that contains a subtask input and it's associated delete button */
+.formSubTask{
+    display: flex;
+    gap: 1ch;
+
+    grid-column: span 2;
+}
+
+
+/* so we have 3 main 'parts' of the page (header, sidebar, main)
+header stays the same height unless font changes
+sidebar expands vertically to fill space, and horizontally only under extreme font changes
+main expands... okay so like.
+the actual LIST part of main expands based on space/font but only to a certain extent,
+probably capped based on font
+the 'background' part of main just fills space but i don't know if that will even 'exist'
+enough to count of if it's basically just body.background
+
+header's minimum width should probably be whatever the mid width for the rest of everything
+else is, so NOT set directly?
+*/
