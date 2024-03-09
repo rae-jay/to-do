@@ -1,12 +1,13 @@
-import { processTaskForm } from './master';
+import { processTaskForm, processProjectForm } from './master';
 import './style.css';
 
-export function testGen(){
+// export function testGen(){
 
-    let testOb = document.createElement("div");
-    document.body.appendChild(testOb);
-}
+//     let testOb = document.createElement("div");
+//     document.body.appendChild(testOb);
+// }
 
+const priorityStyles = ["priorityLow", "priorityMed", "priorityHigh"];
 
 // this is just set to display current date
 const dateNowDisplay = document.getElementById("dateNow");
@@ -30,9 +31,26 @@ const mainContent = document.querySelector(".mainContent");
 
 
 export function generateStartup(mainProjects, timeProjects){
+    /* i was concerned about, like. if we pass 'mainProjects'
+    are we handing the 'make new task form' a frozen copy of what 'mainProjects' was on open
+    OR a live one, that will expand as new things are added from elsewhere
+    and it seems like it should be the latter, which is bad and will break everything
+    but honestly rn i feel like it's working like the former
+    */
+
     dateNowDisplay.textContent = "it's a day";
 
-    // generateSidebar();
+
+    addProjectButton.addEventListener("click", () => {
+        clearMainContent();
+        generateProjectForm(mainProjects);
+    })
+
+    addTaskButton.addEventListener("click", () => {
+        clearMainContent();
+        generateTaskForm(mainProjects);
+    })
+    
 
 
     // create heading, and then create project links (time-generated projects)
@@ -48,28 +66,16 @@ export function generateStartup(mainProjects, timeProjects){
     }    
 
 
-    // generateMainContent();
-    generateForm();
+
+    // default view probably 'today'
+    generateMainContent(timeProjects[0]);
 }
 
 
 
-function generateSidebar(){
-    createDocElement("h2", "", "Upcoming", projectsTime);
-
-    createDocElement("div", "", "Today", projectsTime);
-    createDocElement("div", "", "This Week", projectsTime);
 
 
-    createDocElement("h2", "", "Projects", projectsMain);
-
-    generateProjectLink("General");
-    generateProjectLink("Personal");
-}
-
-// eventually these would have to actually be tied to a project and DO things, but
 function generateProjectLink(project, parent){
-    // createDocElement("div", "", title, projectsMain);
     const newLink = createDocElement("div", "", project.title, parent);
     newLink.addEventListener("click", () => {
         clearMainContent();
@@ -82,8 +88,6 @@ function generateProjectLink(project, parent){
 
 
 function generateMainContent(project){
-    // console.log(project);
-
     createDocElement("h1", "", project.title, mainContent);
 
     project.tasks.forEach( (task) =>{
@@ -95,6 +99,7 @@ function generateTaskObject(task){
     const newTask = createDocElement("div", "taskObject", "", mainContent);
 
     const taskMain = createDocElement("div", "taskMain", "", newTask);
+    taskMain.classList.add(priorityStyles[task.priority]);
     createDocElement("img", "", "../src/graphics/checkbox-blank-circle-outline.svg", taskMain);
     createDocElement("div", "taskTitle", task.title, taskMain);
     createDocElement("div", "", "date", taskMain);
@@ -177,39 +182,37 @@ function createTextAreaInput(id, name, placeholder, cols, rows, parent){
 }
 
 
-/* okay so subtasks.
-i feel like you should be able to remove one, after making it? if you don't want it?
-    (if you retroactively make one blank that's fine but should be caught on submit)
-which means the buttons should actually be nested, with a delete button made at the same
-time, which sit next to each other
-
-*/
 
 
 
-function generateForm(){
+function generateTaskForm(projects){
     const newForm = createDocElement("form", "", "", mainContent);
     newForm.action = "javascript:;";
     newForm.method = "post";
-    // newForm.onSubmit = processTaskForm;
-    // console.log(newForm.onSubmit);
     newForm.addEventListener("submit", (event)=> {
         const data = new FormData(event.target);
         processTaskForm([...data.entries()]);
+        clearMainContent();
     })
 
     createDocInput("text", "taskTitle", "title", true, newForm);
     createDocInput("date", "taskDate", "date", true, newForm);
 
-    createSelectInput("taskCategory", "category", newForm, [
-        ["Example Projecttttttt", "x"],
-        ["Example Project", "y"],
-    ])
+
+    const projectSelects = [];
+    // this to pass i, which is 'index within projects'
+    // since 'select' seems to only store a string value, which will need to translate
+    // back into a project when the task is actually made
+    for(let i = 0; i < projects.length; i++){
+        projectSelects.push([projects[i].title,i]);
+    }
+    createSelectInput("taskCategory", "category", newForm, projectSelects);
+
     createSelectInput("taskPriority", "priority", newForm, [
         ["Low", 0],
         ["Medium", 1],
         ["High", 2],
-    ])
+    ]);
 
     createTextAreaInput("taskDesc", "desc", "Description...", 30, 4, newForm);
 
@@ -233,7 +236,7 @@ function generateForm(){
     newSubBtn.addEventListener("click", () => {
         // this is just to de-clutter/shorten
         let length = formSubtasks.length;
-        // this is to stop generating a new task if the last one is still blank
+        // this check is to stop generating a new subtask if the last one is still blank
         if(length == 0 || 
           (length > 0 && formSubtasks[length-1].value != "")){
             // the visual container
@@ -257,9 +260,34 @@ function generateForm(){
 
 
 
-    const subBtn = createDocElement("button", "", "sub", newForm);
-    subBtn.type = "submit";
+    const submitBtn = createDocElement("button", "", "sub", newForm);
+    submitBtn.type = "submit";
 }
+
+
+
+function generateProjectForm(projects){
+    const newForm = createDocElement("form", "", "", mainContent);
+    newForm.action = "javascript:;";
+    newForm.method = "post";
+    
+    newForm.addEventListener("submit", (event)=> {
+        const data = new FormData(event.target);
+        // console.log(...data.entries());
+        const newProj = processProjectForm(...data.entries());
+        clearMainContent();
+
+        generateProjectLink(newProj, projectsMain);
+    })
+
+    createDocInput("text", "taskTitle", "title", true, newForm);
+
+    const submitBtn = createDocElement("button", "", "sub", newForm);
+    submitBtn.type = "submit";
+}
+
+
+
 
 {/*<!-- title, description, priority, category, subTasks, dueDate -->
     <!-- action="javascript:;" method="post" onsubmit="submitForm()" -->

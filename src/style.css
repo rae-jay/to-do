@@ -126,11 +126,15 @@ header{
 
 /* the new-task/new-project buttons */
 .addButtons{
-    padding-top: 5rem;
+    /* padding-top: 5rem; */
 
     display: flex;
     /* justify-content: end; */
     gap: 2ch;
+
+    position: fixed;
+    bottom: 3vh;
+    left: 12ch;
 }
 
 .addButtons > img{
@@ -169,9 +173,9 @@ header{
     border-radius: 7px;
     /* this padding is because of the priority line */
     padding-left: 2.5ch;
-    box-shadow: inset rgb(136, 185, 90) 30px 0 0 -20px;
+    box-shadow: inset gray 30px 0 0 -20px;
 
-    background-color: rgb(218, 241, 197);
+    background-color: gray;
 }
 
 .taskMain > img{
@@ -182,6 +186,23 @@ header{
 .taskMain .taskTitle{
     font-size: 1.25rem;
 }
+
+/* these are applied only TO 'taskMain's */
+.priorityHigh{
+    box-shadow: inset rgb(185, 90, 90) 30px 0 0 -20px;
+    background-color: rgb(241, 208, 197);
+}
+
+.priorityMed{
+    box-shadow: inset rgb(233, 202, 134) 30px 0 0 -20px;
+    background-color: rgb(241, 230, 197);
+}
+
+.priorityLow{
+    box-shadow: inset rgb(136, 185, 90) 30px 0 0 -20px;
+    background-color: rgb(218, 241, 197);
+}
+
 
 /* the stuff below main task, descriptions/subtasks */
 .taskExtra{

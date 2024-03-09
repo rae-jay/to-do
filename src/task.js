@@ -1,4 +1,4 @@
-
+import { Project } from "./project";
 
 export class Task{
     /*
@@ -17,7 +17,9 @@ export class Task{
         this.description = description;
         this.priority = priority;
         this.category = category;
-
+        category.addTask(this);
+        // console.log("Task constructor: ");
+        // console.log(category);
         
         this.subTasks = [];
         if(subTasks){

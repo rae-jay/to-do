@@ -16,18 +16,18 @@ let testProject = new Project("Proj");
 projects.push(testProject);
 
 // title date category priority description
-let testTask = new Task("Do something", "date", "Temp", 2, "these are details", ["Sub 1", "Sub 2"]);
-let testTask2 = new Task("bDo something", "date", "Temp", 1, "these are details");
-let testTask3 = new Task("cDo something", "date", "Temp", 2, "these are details");
+let testTask = new Task("Do something", "date", testProject, 2, "these are details", ["Sub 1", "Sub 2"]);
+let testTask2 = new Task("bDo something", "date", testProject, 1, "these are details");
+let testTask3 = new Task("cDo something", "date", testProject, 2, "these are details");
 // testTask.testDisplay();
 
 // console.log(testTask);
 // console.log(testTask.priority);
 // testProject.addTask(testTask);
 
-testProject.addTask(testTask);
-testProject.addTask(testTask2);
-testProject.addTask(testTask3);
+// testProject.addTask(testTask);
+// testProject.addTask(testTask2);
+// testProject.addTask(testTask3);
 
 // testProject.removeTask(0);
 
@@ -38,8 +38,6 @@ createTimeProjects();
 
 // testGen();
 generateStartup(projects, timeProjects);
-
-
 
 
 
@@ -62,9 +60,16 @@ function createTimeProjects(){
 
 
 
-// rn task() is title, desc, prior, cat, subtasks, no date
+
 export function processTaskForm(values){
-    console.log("this worked")
+
+    const extractValues = [];
+    // 0-4 are everything but subtasks
+    for(let i = 0; i < 5; i++){
+        extractValues.push(values[i][1]);
+    }
+    // this is messy as hell but passing a project object as a select value WAS NOT WORKING
+    extractValues[2] = projects[extractValues[2]];
 
     const subtasks = [];
     if(values.length > 5){
@@ -74,23 +79,14 @@ export function processTaskForm(values){
             }
         }
     }
+    extractValues.push(subtasks);
 
-    /* 
-    honestly this is the part where i consider
-    tasks are always going to be made this way, UNLESS they are being fetched from storage
+    
+    const testTaskGen = new Task(...extractValues);
 
-    there's gotta be a way to interface the two together that DOESNT require me typing in
-    values[x][1] every single gd time
-
-    reorder the constructor to match
-    loop through and take the second value, put that in an [], then ...spread
-    */
-
-
-
-    const testTaskGen = new Task(values[0][1], values[4][1], values[3][1], values[2][1], subtasks);
-    console.log(testTaskGen);
-    /*
+    // console.log("processTaskForm: ");
+    // console.log(testTaskGen);
+    {/*
     this gives us:
     [
     0    [title, ""]
@@ -104,24 +100,27 @@ export function processTaskForm(values){
         the last of which could be blank
         but there may be none of them at all
     ]
+    */}
+}
 
 
-
-
-    */
+export function processProjectForm(values){
+    const newProj = new Project(values[1]);
+    projects.push(newProj);
+    return newProj;
 }
 
 
 /*
 -date system
     -and generating today/this week by date
--ability to input/delete tasks and projects from UI
-    -making things go to 'general' when not defined as in a project
+-ability to delete tasks and projects from UI
 -ability to mark tasks as complete
     -(possibly a 'completed' tab where those finished tasks go, and can be un-completed)
 -(and mark subtasks as complete)
--priority colors
+
 -change cursor on clickable things
 -and alt text to images
     -possibly make add buttons float seperately at bottom of screen
+
 */
