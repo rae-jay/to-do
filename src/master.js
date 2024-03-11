@@ -7,8 +7,8 @@ import { generateStartup } from "./interface";
 
 const projects = [];
 const timeProjects = [];
-// then probably also one with the two time-based 'project' groups, because aside from
-// how they're GENERATED, they work functionally the same
+
+
 
 
 projects.push(new Project("General"));
@@ -16,20 +16,18 @@ let testProject = new Project("Proj");
 projects.push(testProject);
 
 // title date category priority description
-let testTask = new Task("Do something", "date", testProject, 2, "these are details", ["Sub 1", "Sub 2"]);
-let testTask2 = new Task("bDo something", "date", testProject, 1, "these are details");
-let testTask3 = new Task("cDo something", "date", testProject, 2, "these are details");
-// testTask.testDisplay();
+// (dates apparently need the DAY to be one number ahead, as though 1st = 0, but...months dont)
+let testTask = new Task("last week", "2024-03-09", testProject, 2, "these are details", ["Sub 1", "Sub 2"]);
+let testTask2 = new Task("today", "2024-03-12", testProject, 1, "these are details");
+let testTask3 = new Task("tomorrow", "2024-03-13", testProject, 2, "these are details");
+let testTask4 = new Task("this week", "2024-03-16", testProject, 2, "these are details");
+let testTask5 = new Task("over a week", "2024-03-22", testProject, 2, "these are details");
+let testTask6 = new Task("late month", "2024-03-28", testProject, 2, "these are details");
 
-// console.log(testTask);
-// console.log(testTask.priority);
-// testProject.addTask(testTask);
 
-// testProject.addTask(testTask);
-// testProject.addTask(testTask2);
-// testProject.addTask(testTask3);
 
-// testProject.removeTask(0);
+let todayDate = new Date();
+todayDate.setHours(0,0,0,0);
 
 
 
@@ -37,25 +35,36 @@ createTimeProjects();
 
 
 // testGen();
-generateStartup(projects, timeProjects);
+generateStartup(todayDate, projects, timeProjects);
 
 
 
 
 function createTimeProjects(){
-    // i really don't want to deal with dates rn so lets just grab the first two?
-    
-    // i have to MAKE two new projects, named Today and This Week, and then add tasks
-    // into them
-    // (i'm sure this could/should be condensed but i don't want to bother until dates)
-    const todayProject = new Project("Today");
-    todayProject.addTask(testTask);
-    timeProjects.push(todayProject);
 
-    const weekProject = new Project("This Week");
-    weekProject.addTask(testTask);
-    weekProject.addTask(testTask2);
-    timeProjects.push(weekProject);
+    timeProjects.push(new Project("Today"));
+    timeProjects.push(new Project("This Week"));
+
+    const compareDates = [
+        new Date(todayDate.getFullYear(),todayDate.getMonth(),todayDate.getDate()+1),
+        new Date(todayDate.getFullYear(),todayDate.getMonth(),todayDate.getDate()+7),
+    ];
+    compareDates.forEach( (date) => { date.setHours(0,0,0,0)});
+
+    projects.forEach( (proj) => {
+        proj.tasks.forEach (  (task) => {
+            const dateResults = task.compareDates(compareDates);
+
+            // console.log("task: " + task.title)
+            // console.log(dateResults);
+
+            for(let i = 0; i < timeProjects.length; i++){
+                if(dateResults[i] == true){
+                    timeProjects[i].addTask(task);
+                }
+            }
+        })
+    })
 }
 
 
@@ -81,7 +90,6 @@ export function processTaskForm(values){
     }
     extractValues.push(subtasks);
 
-    
     const testTaskGen = new Task(...extractValues);
 
     // console.log("processTaskForm: ");
@@ -112,9 +120,8 @@ export function processProjectForm(values){
 
 
 /*
--date system
-    -and generating today/this week by date
--ability to delete tasks and projects from UI
+    -what do we do if a task SHOULDNT have a due date
+-ability to edit or delete tasks and projects from UI
 -ability to mark tasks as complete
     -(possibly a 'completed' tab where those finished tasks go, and can be un-completed)
 -(and mark subtasks as complete)

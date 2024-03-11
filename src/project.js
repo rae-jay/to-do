@@ -28,7 +28,7 @@ export class Project{
         }
         this.tasks.splice(i, 0, task);
 
-        this.testDisplay();
+        // this.testDisplay();
     }
 
 
@@ -81,11 +81,11 @@ function sortTasks(task1, task2){
 
     let success = false;
 
-    if("date" > "date"){
+    if(task1.date < task2.date){
         // console.log("compare: date sooner");
         success = true;
     }
-    else if("date" === "date"){
+    else if(task1.date === task2.date){
         if(task1.priority > task2.priority){
             // console.log("compare: priority higher");
             success = true;

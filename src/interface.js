@@ -30,7 +30,7 @@ const mainContent = document.querySelector(".mainContent");
 
 
 
-export function generateStartup(mainProjects, timeProjects){
+export function generateStartup(today, mainProjects, timeProjects){
     /* i was concerned about, like. if we pass 'mainProjects'
     are we handing the 'make new task form' a frozen copy of what 'mainProjects' was on open
     OR a live one, that will expand as new things are added from elsewhere
@@ -38,7 +38,7 @@ export function generateStartup(mainProjects, timeProjects){
     but honestly rn i feel like it's working like the former
     */
 
-    dateNowDisplay.textContent = "it's a day";
+    dateNowDisplay.textContent = dateForDisplay(today);
 
 
     addProjectButton.addEventListener("click", () => {
@@ -102,7 +102,7 @@ function generateTaskObject(task){
     taskMain.classList.add(priorityStyles[task.priority]);
     createDocElement("img", "", "../src/graphics/checkbox-blank-circle-outline.svg", taskMain);
     createDocElement("div", "taskTitle", task.title, taskMain);
-    createDocElement("div", "", "date", taskMain);
+    createDocElement("div", "", dateForDisplay(task.date), taskMain);
 
     const taskExtra = createDocElement("div", "taskExtra", "", newTask);
     createDocElement("div", "", task.description, taskExtra);
@@ -286,6 +286,36 @@ function generateProjectForm(projects){
     submitBtn.type = "submit";
 }
 
+
+const weekDays = {
+    0: "Sun",
+    1: "Mon",
+    2: "Tue",
+    3: "Wed",
+    4: "Thu",
+    5: "Fri",
+    6: "Sat",
+}
+
+const months = {
+    0: "Jan",
+    1: "Feb",
+    2: "Mar",
+    3: "Apr",
+    4: "May",
+    5: "June",
+    6: "July",
+    7: "Aug",
+    8: "Sep",
+    9: "Oct",
+    10: "Nov",
+    11: "Dec",
+
+}
+
+function dateForDisplay(date){
+    return `${weekDays[date.getDay()]} ${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
+}
 
 
 

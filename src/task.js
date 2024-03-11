@@ -14,12 +14,19 @@ export class Task{
     // 'subtasks' input should be an array of string names
     constructor(title, dueDate, category, priority, description, subTasks){
         this.title = title;
+        this.date = new Date(dueDate);
+        this.date.setHours(0,0,0,0);
         this.description = description;
         this.priority = priority;
         this.category = category;
+
         category.addTask(this);
         // console.log("Task constructor: ");
         // console.log(category);
+
+        // const testDate = new Date(dueDate);
+        // console.log("date testing: ");
+        // console.log(testDate);
         
         this.subTasks = [];
         if(subTasks){
@@ -28,13 +35,34 @@ export class Task{
             })
         }
         
-        
-        // this.subTasks = subTasks;
-
-        // i don't know how we'll store dueDate in the event that there isn't one
-        //so leaving blank
     }
 
+    // otherDate is generally just 'today', i just wanted to handle that in master.js
+    // and compareAgainst should be [] of other dates
+    compareDates(compareAgainst){
+        // same day / same week
+        const results = [];
+
+        // console.log("task date: ");
+        // console.log(this.date);
+
+        compareAgainst.forEach( (cDate) => {
+            // console.log("against: ");
+            // console.log(cDate);
+            if(this.date < cDate){
+                results.push(true);
+            }
+            else{
+                results.push(false);
+            }
+        })
+
+        
+
+        return results;
+
+        // returns 'same day yes/no', 'same week yes/no'
+    }
 
 
     testDisplay(){
