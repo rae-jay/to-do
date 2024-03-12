@@ -41,10 +41,15 @@ export class Project{
             contains them should. so when the visual component is removed from the group
             at the same time that the task is, that like. works. or whatever.)
         */
-    removeTask(taskPosition){
-        this.tasks.splice(taskPosition, 1);
+    removeTask(task){
+        // this.tasks.splice(taskPosition, 1);
+        const i = this.tasks.indexOf(task);
+        if(i >= 0){
+            this.tasks.splice(i,1);
+        }
 
-        this.testDisplay();
+
+        // this.testDisplay();
     }
 
 

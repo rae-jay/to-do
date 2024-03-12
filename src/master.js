@@ -5,8 +5,9 @@ import { Project } from "./project";
 import { generateStartup } from "./interface";
 
 
-const projects = [];
-const timeProjects = [];
+// i was keeping these, like. 'contained'. and it's ruining my life, so.
+export const projects = [];
+export const timeProjects = [];
 
 
 
@@ -29,6 +30,11 @@ let testTask6 = new Task("late month", "2024-03-28", testProject, 2, "these are 
 let todayDate = new Date();
 todayDate.setHours(0,0,0,0);
 
+const compareDates = [
+    new Date(todayDate.getFullYear(),todayDate.getMonth(),todayDate.getDate()+1),
+    new Date(todayDate.getFullYear(),todayDate.getMonth(),todayDate.getDate()+7),
+];
+compareDates.forEach( (date) => { date.setHours(0,0,0,0)});
 
 
 createTimeProjects();
@@ -39,34 +45,32 @@ generateStartup(todayDate, projects, timeProjects);
 
 
 
-
 function createTimeProjects(){
 
     timeProjects.push(new Project("Today"));
     timeProjects.push(new Project("This Week"));
 
-    const compareDates = [
-        new Date(todayDate.getFullYear(),todayDate.getMonth(),todayDate.getDate()+1),
-        new Date(todayDate.getFullYear(),todayDate.getMonth(),todayDate.getDate()+7),
-    ];
-    compareDates.forEach( (date) => { date.setHours(0,0,0,0)});
+    
 
     projects.forEach( (proj) => {
         proj.tasks.forEach (  (task) => {
-            const dateResults = task.compareDates(compareDates);
-
-            // console.log("task: " + task.title)
-            // console.log(dateResults);
-
-            for(let i = 0; i < timeProjects.length; i++){
-                if(dateResults[i] == true){
-                    timeProjects[i].addTask(task);
-                }
-            }
+            addToTimeProjects(task);
         })
     })
 }
 
+
+function addToTimeProjects(task){
+    const dateResults = task.compareDates(compareDates);
+
+    // console.log("task: " + task.title)
+    // console.log(dateResults);
+    for(let i = 0; i < timeProjects.length; i++){
+        if(dateResults[i] == true){
+            timeProjects[i].addTask(task);
+        }
+    }
+}
 
 
 
@@ -90,7 +94,15 @@ export function processTaskForm(values){
     }
     extractValues.push(subtasks);
 
-    const testTaskGen = new Task(...extractValues);
+    const newTask = new Task(...extractValues);
+
+    addToTimeProjects(newTask);
+
+
+    // these feels cheap but on making a new task, i want to jump to that task's project
+    // so we're just gonna huck that back to interface > generateTaskForm() where it makes
+    // the submit button
+    return extractValues[2];
 
     // console.log("processTaskForm: ");
     // console.log(testTaskGen);
@@ -119,15 +131,46 @@ export function processProjectForm(values){
 }
 
 
-/*
-    -what do we do if a task SHOULDNT have a due date
--ability to edit or delete tasks and projects from UI
--ability to mark tasks as complete
-    -(possibly a 'completed' tab where those finished tasks go, and can be un-completed)
--(and mark subtasks as complete)
+export function finishTask(task){
+    timeProjects.forEach( (proj) =>{
+        proj.removeTask(task);
+    })
 
--change cursor on clickable things
+    task.category.removeTask(task);
+
+    // maybe add this task to a hidden 'completed' project
+        // except that adds a whole bunch of complications like 'having to re-check time
+        // projects' and 'making a whole new button-click script'
+        // and then thinking 'well no just fold it into the old button-click script'
+        // which would mean rewriting the whole button. click. script.
+}
+
+
+
+
+
+
+/*    
+-editing SUBTASKS
+    (i think i'm fairly close on that BUT i'm not sure how i want to pass 'is the subtask
+    finished' through my form system)
+
+    -what do we do if a task SHOULDNT have a due date (or should that be possible)
+-the form not looking like shit
+    -i was going to 'label' my form elements with like, placeholder text, HOWEVER i've
+    realized that doesn't work with like half of them (dates, projects, priority), SO
+    we might want to go back and format for labels
+-ability to save/load data
+    -(possibly a 'completed' tab where those finished tasks go, and can be un-completed)
+        (this is made more complicated by the fact that right now i'm setting it up so when
+        you edit a task, it 'finishes' the old version and makes a new one, so that it's
+        properly sorted into time/project order with its new values. there would have to
+        be a way to handle REAL finishing vs REMOVAL-finishing)
+
 -and alt text to images
-    -possibly make add buttons float seperately at bottom of screen
+
+-sometimes i'm still getting a time bug (like rn it's 10:18pm and if i make a task for
+3/11/2024, which it IS NOW, it gets set as a 3/10 task)
+-date funk is also very demonstratable when editing a task, they always regress back
 
 */

@@ -1,5 +1,5 @@
 /* clears */
-body, h2, h1{
+body, h2, h1, h3{
     margin: 0;
 }
 
@@ -166,7 +166,7 @@ header{
 /* the check/title/date part of a task */
 .taskMain{
     display: grid;
-    grid-template-columns: 3ch 1fr 15ch;
+    grid-template-columns: 3ch 1fr 15ch 2ch;
     gap: 1.5ch;
 
     padding: 1ch;
@@ -242,6 +242,10 @@ form{
     /* width: 350px; */
 }
 
+form > h3{
+    grid-column: span 2;
+}
+
 #taskDesc, #taskSub0{
     grid-column: span 2;
 }
@@ -269,6 +273,12 @@ textarea{
     gap: 1ch;
 
     grid-column: span 2;
+}
+
+
+
+.projectGroup div, .mainContent img{
+    cursor: grab;
 }
 
 

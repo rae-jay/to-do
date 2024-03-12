@@ -1,4 +1,5 @@
-import { processTaskForm, processProjectForm } from './master';
+import { projects, timeProjects, 
+         processTaskForm, processProjectForm, finishTask } from './master';
 import './style.css';
 
 // export function testGen(){
@@ -27,10 +28,10 @@ const projectsMain = createDocElement("div", "projectGroup", "", sidebar);
 
 // this is where project title/task objects are displayed once a project is selected
 const mainContent = document.querySelector(".mainContent");
+ 
 
 
-
-export function generateStartup(today, mainProjects, timeProjects){
+export function generateStartup(today){
     /* i was concerned about, like. if we pass 'mainProjects'
     are we handing the 'make new task form' a frozen copy of what 'mainProjects' was on open
     OR a live one, that will expand as new things are added from elsewhere
@@ -43,12 +44,12 @@ export function generateStartup(today, mainProjects, timeProjects){
 
     addProjectButton.addEventListener("click", () => {
         clearMainContent();
-        generateProjectForm(mainProjects);
+        generateProjectForm();
     })
 
     addTaskButton.addEventListener("click", () => {
         clearMainContent();
-        generateTaskForm(mainProjects);
+        generateTaskForm();
     })
     
 
@@ -61,8 +62,8 @@ export function generateStartup(today, mainProjects, timeProjects){
 
     // create heading, and then create project links (created projects)
     createDocElement("h2", "", "Projects", projectsMain);
-    for(let i = 0; i < mainProjects.length; i++) {
-        generateProjectLink(mainProjects[i], projectsMain, [1,i]);
+    for(let i = 0; i < projects.length; i++) {
+        generateProjectLink(projects[i], projectsMain, [1,i]);
     }    
 
 
@@ -100,9 +101,21 @@ function generateTaskObject(task){
 
     const taskMain = createDocElement("div", "taskMain", "", newTask);
     taskMain.classList.add(priorityStyles[task.priority]);
-    createDocElement("img", "", "../src/graphics/checkbox-blank-circle-outline.svg", taskMain);
+    const checkBox = createDocElement("img", "", "../src/graphics/checkbox-blank-circle-outline.svg", taskMain);
+    checkBox.addEventListener("click", () => {        
+        finishTask(task);
+
+        newTask.remove();
+    })
+    
     createDocElement("div", "taskTitle", task.title, taskMain);
     createDocElement("div", "", dateForDisplay(task.date), taskMain);
+
+    const editBtn = createDocElement("img", "", "../src/graphics/dots-vertical.svg", taskMain)
+    editBtn.addEventListener("click", () => {
+        clearMainContent();
+        generateTaskForm(task);
+    })
 
     const taskExtra = createDocElement("div", "taskExtra", "", newTask);
     createDocElement("div", "", task.description, taskExtra);
@@ -114,10 +127,17 @@ function generateTaskObject(task){
 
 function generateSubtask(task, parent){
     const newTask = createDocElement("div", "subTask", "", parent);
+
     let checkImg;
-    if(task.complete == false){ checkImg = "../src/graphics/checkbox-blank-outline.svg" }
-    else { checkImg = "../src/graphics/checkbox-outline.svg"}
-    createDocElement("img", "", checkImg, newTask);
+    task.complete ? checkImg = "../src/graphics/checkbox-outline.svg" : 
+    checkImg = "../src/graphics/checkbox-blank-outline.svg";
+    
+    const checkBox = createDocElement("img", "", checkImg, newTask);
+    checkBox.addEventListener("click", () => {
+        task.setCompletion() ? checkBox.src = "../src/graphics/checkbox-outline.svg" :
+        checkBox.src = "../src/graphics/checkbox-blank-outline.svg";
+    })
+
     createDocElement("div", "", task.title, newTask);
 }
 
@@ -169,6 +189,7 @@ function createSelectInput(id, name, parent, options ){
         newOpt.value = option[1];
         newEl.appendChild(newOpt);
     })
+    return newEl;
 }
 
 function createTextAreaInput(id, name, placeholder, cols, rows, parent){
@@ -179,42 +200,72 @@ function createTextAreaInput(id, name, placeholder, cols, rows, parent){
     newEl.cols = cols;
     newEl.rows = rows;
     parent.appendChild(newEl);
+    return newEl;
+}
+
+function generateSubTaskForm(docParent, taskArray, taskNum){
+    // the visual container
+    const subParent = createDocElement("div", "formSubTask", "", docParent);
+    // the text input
+    const newSubtask = createDocInput("text", "sub"+taskNum, "sub"+taskNum, false, subParent)
+    taskArray.push(newSubtask);
+    // the delete button
+    const delButton = createDocElement("button", "", "-", subParent);
+    delButton.type = "button";
+    delButton.addEventListener("click", () => {
+        taskArray.splice( taskArray.indexOf(newSubtask), 1 );
+        docParent.removeChild(subParent);
+        // console.log(taskArray);
+    })
+    return newSubtask;
 }
 
 
 
-
-
-function generateTaskForm(projects){
+// 'task' only exists if we're editing a pre-existing task
+function generateTaskForm(task){
     const newForm = createDocElement("form", "", "", mainContent);
     newForm.action = "javascript:;";
     newForm.method = "post";
     newForm.addEventListener("submit", (event)=> {
         const data = new FormData(event.target);
-        processTaskForm([...data.entries()]);
+
+        if(task){
+            finishTask(task);
+        }
+        const taskProj = processTaskForm([...data.entries()]);
         clearMainContent();
+        generateMainContent(taskProj);
     })
 
-    createDocInput("text", "taskTitle", "title", true, newForm);
-    createDocInput("date", "taskDate", "date", true, newForm);
+    createDocElement("h3", "", "New task", newForm);
+
+    const titleInpt = createDocInput("text", "taskTitle", "title", true, newForm);
+    const dateInpt = createDocInput("date", "taskDate", "date", true, newForm);
 
 
     const projectSelects = [];
+    let indexForEditForm = 0;
     // this to pass i, which is 'index within projects'
     // since 'select' seems to only store a string value, which will need to translate
     // back into a project when the task is actually made
     for(let i = 0; i < projects.length; i++){
         projectSelects.push([projects[i].title,i]);
-    }
-    createSelectInput("taskCategory", "category", newForm, projectSelects);
 
-    createSelectInput("taskPriority", "priority", newForm, [
+        if(task && projects[i].title == task.category.title){
+            indexForEditForm = i;
+        }
+    }
+    const projectInpt = createSelectInput("taskCategory", "category", newForm, projectSelects);
+    projectInpt.selectedIndex = indexForEditForm;
+
+    const priorityInpt = createSelectInput("taskPriority", "priority", newForm, [
         ["Low", 0],
         ["Medium", 1],
         ["High", 2],
     ]);
 
-    createTextAreaInput("taskDesc", "desc", "Description...", 30, 4, newForm);
+    const descInpt = createTextAreaInput("taskDesc", "desc", "Description...", 30, 4, newForm);
 
 
     // im now messing with dark magics i do not fully comprehend
@@ -229,8 +280,7 @@ function generateTaskForm(projects){
     // i think this makes it more, like. tied to THIS instance of the form?)
     const formSubtasks = [];
 
-
-    const newSubBtn = createDocElement("button", "", "+", newForm);
+    const newSubBtn = createDocElement("button", "", "Add Subtask", newForm);
     newSubBtn.type = "button";
 
     newSubBtn.addEventListener("click", () => {
@@ -239,19 +289,8 @@ function generateTaskForm(projects){
         // this check is to stop generating a new subtask if the last one is still blank
         if(length == 0 || 
           (length > 0 && formSubtasks[length-1].value != "")){
-            // the visual container
-            const subParent = createDocElement("div", "formSubTask", "", newForm);
-            // the text input
-            const newSubtask = createDocInput("text", "sub"+totalSubtaskCount, "sub"+totalSubtaskCount, false, subParent)
-            formSubtasks.push(newSubtask);
-            // the delete button
-            const delButton = createDocElement("button", "", "-", subParent);
-            delButton.type = "button";
-            delButton.addEventListener("click", () => {
-                formSubtasks.splice( formSubtasks.indexOf(newSubtask), 1 );
-                newForm.removeChild(subParent);
-                console.log(formSubtasks);
-            })
+
+            generateSubTaskForm(newForm, formSubtasks, totalSubtaskCount);
 
             totalSubtaskCount += 1;
           }
@@ -259,14 +298,29 @@ function generateTaskForm(projects){
 
 
 
-
-    const submitBtn = createDocElement("button", "", "sub", newForm);
+    const submitBtn = createDocElement("button", "", "+", newForm);
     submitBtn.type = "submit";
+
+
+    if(task){
+        titleInpt.value = task.title;
+        dateInpt.value = dateForInputValue(task.date);
+        // proj had to be handled dif
+        priorityInpt.selectedIndex = task.priority;
+        descInpt.value = task.description;
+
+        task.subTasks.forEach( (sub) => {
+            generateSubTaskForm(newForm, formSubtasks, totalSubtaskCount).value = sub.title;;
+            totalSubtaskCount += 1;
+        })
+    }
 }
 
 
 
-function generateProjectForm(projects){
+
+
+function generateProjectForm(){
     const newForm = createDocElement("form", "", "", mainContent);
     newForm.action = "javascript:;";
     newForm.method = "post";
@@ -317,6 +371,18 @@ function dateForDisplay(date){
     return `${weekDays[date.getDay()]} ${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
 }
 
+function dateForInputValue(date){
+    // im sure there's a better way but getDate()/Month() DONT INCLUDE 0s BY DEFAULT
+    // (also date is 1-31 but month is 0-11 so month is getting +1)
+    let zeroDate = date.getDate().toString();
+    if(zeroDate.length == 1){ zeroDate = "0" + zeroDate };
+    let zeroMonth = (date.getMonth()+1).toString();
+    if(zeroMonth.length == 1){ zeroMonth = "0" + zeroMonth };
+    let zeroYear = date.getFullYear().toString();
+    while(zeroYear.length < 4){ zeroYear = "0" + zeroYear }
+
+    return `${zeroYear}-${zeroMonth}-${zeroDate}`
+}
 
 
 {/*<!-- title, description, priority, category, subTasks, dueDate -->

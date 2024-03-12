@@ -79,4 +79,9 @@ class SubTask{
         this.title = title;
         this.complete = false;
     }
+
+    setCompletion(){
+        this.complete ? this.complete = false : this.complete = true;
+        return this.complete;
+    }
 }
