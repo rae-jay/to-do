@@ -246,7 +246,7 @@ form > h3{
     grid-column: span 2;
 }
 
-#taskDesc, #taskSub0{
+.textAreaLabel, #taskSub0{
     grid-column: span 2;
 }
 
@@ -273,6 +273,53 @@ textarea{
     gap: 1ch;
 
     grid-column: span 2;
+
+    font-style: italic;
+    color: gray;
+}
+
+
+input, textarea, select{
+    border: 1.5px solid gray;
+    border-radius: 5px;
+
+    background-color: rgb(244, 244, 244);
+}
+
+button{
+    border: none;
+    background-color: rgb(61, 155, 171);
+    color:white;
+}
+
+
+
+.delSubBtn{
+    align-self: end;
+
+    font-weight: bold;
+
+    border-radius: 3ch;
+    height: 3ch;
+    width: 3ch;
+
+}
+
+.addSubBtn{
+    font-weight: bold;
+    border-radius: 10px;
+    width: 16ch;
+}
+
+.subFormBtn{
+    font-weight: bold;
+    width: 4ch;
+    height: 4ch;
+    border-radius: 4ch;
+
+    justify-self: end;
+    align-self: end;
+    margin-right: 2ch;
 }
 
 

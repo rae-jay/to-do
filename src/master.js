@@ -145,9 +145,23 @@ export function finishTask(task){
         // which would mean rewriting the whole button. click. script.
 }
 
+/*
+    so subtasks need some way to have their switch flicked ON generation
 
+    and what i WAS going to do, is right before the task is finished/deleted, grab all
+    its subtask switches, and just hand those through at the end of [date.entries()]
+    in 'processForm'
 
+    BUT. i have NO IDEA HOW TO HANDLE keeping that lined up if you, say, DELETED a task,
+    therefore not maintaining the same order
+    
+    so, i think, maybe just check titles. go in order, if title lines up, check it off.
+    has the potential to break if multiple share a name, for one.
+    AND, what if you EDIT THE NAME?
+    so that's wrong on two fronts.
 
+    which makes me think... we need something lined up WITH the subtask grid itself
+*/
 
 
 /*    
@@ -155,17 +169,14 @@ export function finishTask(task){
     (i think i'm fairly close on that BUT i'm not sure how i want to pass 'is the subtask
     finished' through my form system)
 
-    -what do we do if a task SHOULDNT have a due date (or should that be possible)
--the form not looking like shit
-    -i was going to 'label' my form elements with like, placeholder text, HOWEVER i've
-    realized that doesn't work with like half of them (dates, projects, priority), SO
-    we might want to go back and format for labels
 -ability to save/load data
     -(possibly a 'completed' tab where those finished tasks go, and can be un-completed)
         (this is made more complicated by the fact that right now i'm setting it up so when
         you edit a task, it 'finishes' the old version and makes a new one, so that it's
         properly sorted into time/project order with its new values. there would have to
         be a way to handle REAL finishing vs REMOVAL-finishing)
+    -what do we do if a task SHOULDNT have a due date (or should that be possible)
+-the form not looking like shit
 
 -and alt text to images
 

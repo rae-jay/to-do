@@ -166,22 +166,27 @@ function createDocElement(eType, eClass, eContent, eParent){
     return newEl;
 }
 
-function createDocInput(type, id, name, required, parent){
+function createDocInput(type, id, name, label, required, parent){
     const newEl = document.createElement("input");
     newEl.type = type;
     newEl.id = id;
     newEl.name = name;
     newEl.required = required;
-    parent.appendChild(newEl);
+
+    const newLabel = createLabel(id,parent,label);
+
+    newLabel.appendChild(newEl);
     return newEl;
 }
 
 // options should be an array of arrays, ex: [ ["DisplayText", value], ["DT", val], etc ]
-function createSelectInput(id, name, parent, options ){
+function createSelectInput(id, name, label, parent, options ){
     const newEl = document.createElement("select");
     newEl.id = id;
     newEl.name = name;
-    parent.appendChild(newEl);
+
+    const newLabel = createLabel(id,parent,label);
+    newLabel.appendChild(newEl);
 
     options.forEach( (option) => {
         const newOpt = document.createElement("option");
@@ -192,14 +197,18 @@ function createSelectInput(id, name, parent, options ){
     return newEl;
 }
 
-function createTextAreaInput(id, name, placeholder, cols, rows, parent){
+function createTextAreaInput(id, name, label, placeholder, cols, rows, parent){
     const newEl = createDocElement("textarea");
     newEl.id = id;
     newEl.name = name;
     newEl.placeholder = placeholder;
     newEl.cols = cols;
     newEl.rows = rows;
-    parent.appendChild(newEl);
+
+    const newLabel = createLabel(id,parent,label);
+    newLabel.className = "textAreaLabel";
+    newLabel.appendChild(newEl);
+
     return newEl;
 }
 
@@ -207,10 +216,10 @@ function generateSubTaskForm(docParent, taskArray, taskNum){
     // the visual container
     const subParent = createDocElement("div", "formSubTask", "", docParent);
     // the text input
-    const newSubtask = createDocInput("text", "sub"+taskNum, "sub"+taskNum, false, subParent)
+    const newSubtask = createDocInput("text", "sub"+taskNum, "sub"+taskNum, "Subtask", false, subParent)
     taskArray.push(newSubtask);
     // the delete button
-    const delButton = createDocElement("button", "", "-", subParent);
+    const delButton = createDocElement("button", "delSubBtn", "-", subParent);
     delButton.type = "button";
     delButton.addEventListener("click", () => {
         taskArray.splice( taskArray.indexOf(newSubtask), 1 );
@@ -218,6 +227,15 @@ function generateSubTaskForm(docParent, taskArray, taskNum){
         // console.log(taskArray);
     })
     return newSubtask;
+}
+
+function createLabel(forID, parent, text){
+    const newLabel = document.createElement("label");
+    newLabel.for = forID;
+    newLabel.textContent = text;
+    newLabel.appendChild(document.createElement("br"));
+    parent.appendChild(newLabel);
+    return newLabel;
 }
 
 
@@ -229,19 +247,21 @@ function generateTaskForm(task){
     newForm.method = "post";
     newForm.addEventListener("submit", (event)=> {
         const data = new FormData(event.target);
+        const result = [...data.entries()];
 
         if(task){
+            
             finishTask(task);
         }
-        const taskProj = processTaskForm([...data.entries()]);
+        const taskProj = processTaskForm(result);
         clearMainContent();
         generateMainContent(taskProj);
     })
 
     createDocElement("h3", "", "New task", newForm);
 
-    const titleInpt = createDocInput("text", "taskTitle", "title", true, newForm);
-    const dateInpt = createDocInput("date", "taskDate", "date", true, newForm);
+    const titleInpt = createDocInput("text", "taskTitle", "title", "Name", true, newForm);
+    const dateInpt = createDocInput("date", "taskDate", "date", "Date", true, newForm);
 
 
     const projectSelects = [];
@@ -256,16 +276,16 @@ function generateTaskForm(task){
             indexForEditForm = i;
         }
     }
-    const projectInpt = createSelectInput("taskCategory", "category", newForm, projectSelects);
+    const projectInpt = createSelectInput("taskCategory", "category", "Project", newForm, projectSelects);
     projectInpt.selectedIndex = indexForEditForm;
 
-    const priorityInpt = createSelectInput("taskPriority", "priority", newForm, [
+    const priorityInpt = createSelectInput("taskPriority", "priority", "Priority", newForm, [
         ["Low", 0],
         ["Medium", 1],
         ["High", 2],
     ]);
 
-    const descInpt = createTextAreaInput("taskDesc", "desc", "Description...", 30, 4, newForm);
+    const descInpt = createTextAreaInput("taskDesc", "desc", "Description", "", 34, 4, newForm);
 
 
     // im now messing with dark magics i do not fully comprehend
@@ -280,7 +300,7 @@ function generateTaskForm(task){
     // i think this makes it more, like. tied to THIS instance of the form?)
     const formSubtasks = [];
 
-    const newSubBtn = createDocElement("button", "", "Add Subtask", newForm);
+    const newSubBtn = createDocElement("button", "addSubBtn", "Add Subtask", newForm);
     newSubBtn.type = "button";
 
     newSubBtn.addEventListener("click", () => {
@@ -297,8 +317,7 @@ function generateTaskForm(task){
     })
 
 
-
-    const submitBtn = createDocElement("button", "", "+", newForm);
+    const submitBtn = createDocElement("button", "subFormBtn", "+", newForm);
     submitBtn.type = "submit";
 
 
@@ -334,9 +353,9 @@ function generateProjectForm(){
         generateProjectLink(newProj, projectsMain);
     })
 
-    createDocInput("text", "taskTitle", "title", true, newForm);
+    createDocInput("text", "taskTitle", "title", "Project name", true, newForm);
 
-    const submitBtn = createDocElement("button", "", "sub", newForm);
+    const submitBtn = createDocElement("button", "subFormBtn", "+", newForm);
     submitBtn.type = "submit";
 }
 
