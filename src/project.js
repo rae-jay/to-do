@@ -1,10 +1,12 @@
-
+import { createUniqueTag } from "./master";
 
 
 export class Project{
     constructor(title){
         this.title = title;
         // this.color = color;
+
+        this.uniqueTag = createUniqueTag("pj");
         
         this.tasks = [];
     }

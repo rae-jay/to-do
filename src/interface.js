@@ -120,7 +120,7 @@ function generateTaskObject(task){
     const taskExtra = createDocElement("div", "taskExtra", "", newTask);
     createDocElement("div", "", task.description, taskExtra);
 
-    task.subTasks.forEach( (task) =>{
+    task.subtasks.forEach( (task) =>{
         generateSubtask(task, taskExtra);
     })
 }
@@ -245,15 +245,17 @@ function generateTaskForm(task){
     const newForm = createDocElement("form", "", "", mainContent);
     newForm.action = "javascript:;";
     newForm.method = "post";
+
+    // this is exclusively for editing / handling already-completed subtasks
+    const editSubtasks = [];
+
     newForm.addEventListener("submit", (event)=> {
         const data = new FormData(event.target);
-        const result = [...data.entries()];
 
         if(task){
-            
             finishTask(task);
         }
-        const taskProj = processTaskForm(result);
+        const taskProj = processTaskForm([...data.entries()], editSubtasks);
         clearMainContent();
         generateMainContent(taskProj);
     })
@@ -272,11 +274,11 @@ function generateTaskForm(task){
     for(let i = 0; i < projects.length; i++){
         projectSelects.push([projects[i].title,i]);
 
-        if(task && projects[i].title == task.category.title){
+        if(task && projects[i].title == task.project.title){
             indexForEditForm = i;
         }
     }
-    const projectInpt = createSelectInput("taskCategory", "category", "Project", newForm, projectSelects);
+    const projectInpt = createSelectInput("taskProject", "project", "Project", newForm, projectSelects);
     projectInpt.selectedIndex = indexForEditForm;
 
     const priorityInpt = createSelectInput("taskPriority", "priority", "Priority", newForm, [
@@ -312,6 +314,10 @@ function generateTaskForm(task){
 
             generateSubTaskForm(newForm, formSubtasks, totalSubtaskCount);
 
+            // this is like. messy/bad form because if i changed the 'sub' id text in the
+            // subtask generation this would break BUT
+            editSubtasks.push(["sub"+totalSubtaskCount, false]);
+            
             totalSubtaskCount += 1;
           }
     })
@@ -328,8 +334,12 @@ function generateTaskForm(task){
         priorityInpt.selectedIndex = task.priority;
         descInpt.value = task.description;
 
-        task.subTasks.forEach( (sub) => {
-            generateSubTaskForm(newForm, formSubtasks, totalSubtaskCount).value = sub.title;;
+        task.subtasks.forEach( (sub) => {
+            generateSubTaskForm(newForm, formSubtasks, totalSubtaskCount).value = sub.title;
+
+            // same complain as above
+            editSubtasks.push(["sub"+totalSubtaskCount, sub.complete]);
+
             totalSubtaskCount += 1;
         })
     }

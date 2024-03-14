@@ -3,6 +3,7 @@ console.log("working test");
 import { Task } from "./task";
 import { Project } from "./project";
 import { generateStartup } from "./interface";
+import { testRun, firstSetup } from "./storage";
 
 
 // i was keeping these, like. 'contained'. and it's ruining my life, so.
@@ -12,18 +13,119 @@ export const timeProjects = [];
 
 
 
+
+// to make sure ids are actually unique we need to have a record of which ones exist
+// using the user-input name would require like, removing spaces and making sure characters
+// are all valid and things i don't super want to do
+// but using just like, increasing numbers is messy
+// so i'm thinking like, tk[a-z]*4. ex: tkgbvh. for tasks, and pj[a-z]*4 for projects
+
+// this would let us: transfer 'project' through the input/value system
+// not break apparently when trying to JSON-ify my tasks bc of project
+// store tasks/projects with an easy to find/delete name in localStorage
+
+// taskTags and projectTags
+const tags = {
+    tk: [],
+    pj: [],
+}
+
+export function createUniqueTag(type){
+    let success = false;
+
+    while(success == false){
+        const newTag = type + randomLetter() + randomLetter() + randomLetter() + randomLetter();
+        let match = false;
+
+        for(let i = 0; i < tags.length; i++){
+            // if we match the newly generated tag to one that already exists
+            if(tags[i].indexOf(newTag) >= 0){
+                match = true;
+                break;
+            }
+        }
+
+        if(match == false){
+            success = true;
+            return newTag;
+        }
+    }
+}
+
+function randomLetter(){
+    return String.fromCharCode(Math.random() * (123 - 97) + 97);
+}
+
+// i need tags to like. behave. through the EDITING of tasks...
+// im honestly approaching the 'burn it all down' stage of 'well maybe everything should
+// just work totally different'
+// like this is really just what tasks/projects are, - the constructors, and a few functions
+// so kind of why bother converting when i could just... seperate out those functions?
+
+// i at least maybe want to put these converters INTO task/project themselves...
+
+// i also have major concerns about how unpacking/repacking like. what tasks are in what
+// projects is gonna work...
+
+export function taskToObj(task){
+    return { 
+        uniqueTag : task.uniqueTag,
+        title : task.title, 
+        date : task.date, 
+        project : projToObj(task.project),
+        priority : task.priority, 
+        desc : task.description, 
+        subtasks : task.subtasks 
+    }
+}
+
+export function objToTask(task){
+    return new Task(
+        task.title, 
+        task.date, 
+        task.project,
+        task.priority, 
+        task.desc, 
+        task.subtasks
+        );
+}
+
+export function projToObj(project){
+    return {
+        uniqueTag : project.uniqueTag,
+        title : project.title,
+    }
+}
+
+export function objToProj(project){
+    return new Project(
+        project.title,
+    )
+}
+
+
+
+
+
+
+
+
+
+firstSetup();
+
+
 projects.push(new Project("General"));
 let testProject = new Project("Proj");
 projects.push(testProject);
 
 // title date category priority description
 // (dates apparently need the DAY to be one number ahead, as though 1st = 0, but...months dont)
-let testTask = new Task("last week", "2024-03-09", testProject, 2, "these are details", ["Sub 1", "Sub 2"]);
-let testTask2 = new Task("today", "2024-03-12", testProject, 1, "these are details");
-let testTask3 = new Task("tomorrow", "2024-03-13", testProject, 2, "these are details");
-let testTask4 = new Task("this week", "2024-03-16", testProject, 2, "these are details");
-let testTask5 = new Task("over a week", "2024-03-22", testProject, 2, "these are details");
-let testTask6 = new Task("late month", "2024-03-28", testProject, 2, "these are details");
+let testTask = new Task("last week", new Date("2024-03-09"), testProject, 2, "these are details", [{title:"Sub 1",completed:false}, {title:"Sub 2",completed:false}]);
+let testTask2 = new Task("today", new Date("2024-03-12"), testProject, 1, "these are details");
+let testTask3 = new Task("tomorrow", new Date("2024-03-13"), testProject, 2, "these are details");
+let testTask4 = new Task("this week", new Date("2024-03-16"), testProject, 2, "these are details");
+let testTask5 = new Task("over a week", new Date("2024-03-22"), testProject, 2, "these are details");
+let testTask6 = new Task("late month", new Date("2024-03-28"), testProject, 2, "these are details");
 
 
 
@@ -74,35 +176,63 @@ function addToTimeProjects(task){
 
 
 
-export function processTaskForm(values){
+export function processTaskForm(values, editSubtasks){
+    // 'values' is just a big [ [name, value], [name,value] ] 
+    // editSubtasks is [ [sub0, true/false], [sub1, true/false] ]
+    // corresponding to a value pair of the same name
 
-    const extractValues = [];
-    // 0-4 are everything but subtasks
-    for(let i = 0; i < 5; i++){
-        extractValues.push(values[i][1]);
-    }
-    // this is messy as hell but passing a project object as a select value WAS NOT WORKING
-    extractValues[2] = projects[extractValues[2]];
+    // it seems kind of dumb to make an object out of values to pass into a constructor
+    // to make an object
+    // HOWEVER it would kind of help keep the order of inputs in the form from being able
+    // to break the way that those values get handed off to the constructor?
+    // this middle 'object' is more of an... intermediary translator
 
-    const subtasks = [];
-    if(values.length > 5){
-        for(let i = 5; i < values.length; i++){
-            if(values[i][1] != ""){
-                subtasks.push(values[i][1]);
+    const processed = {};
+    processed.subtasks = [];
+
+    values.forEach( (val) => {
+        if(val[0].search(/sub[0-9]+/i) >= 0){
+            // if not an empty subtask
+            if(val[1] != ""){
+
+                let i = 0;
+                for(i = 0; i < editSubtasks.length; i++){
+                    if(editSubtasks[i][0] == val[0]){
+                        break;
+                    }
+                }
+
+                if(i < editSubtasks.length){
+                    processed.subtasks.push({ title: val[1], completed : editSubtasks[i][1] });
+                    editSubtasks.splice(i,1);
+                }
             }
         }
-    }
-    extractValues.push(subtasks);
+        else{
+            processed[val[0]] = val[1];
+        }
+    })
 
-    const newTask = new Task(...extractValues);
+    processed.project = projects[processed.project];
+
+    processed.date = new Date(processed.date);
+    processed.date.setHours(0,0,0,0);
+    processed.date.setDate(processed.date.getDate()+1);
+
+
+    // dumb? yes. less dumb than it was two minutes ago? Also yes.
+    const newTask = objToTask(processed);
+
+
+
 
     addToTimeProjects(newTask);
-
 
     // these feels cheap but on making a new task, i want to jump to that task's project
     // so we're just gonna huck that back to interface > generateTaskForm() where it makes
     // the submit button
-    return extractValues[2];
+    // return extractValues[2];
+    return processed.project;
 
     // console.log("processTaskForm: ");
     // console.log(testTaskGen);
@@ -136,7 +266,7 @@ export function finishTask(task){
         proj.removeTask(task);
     })
 
-    task.category.removeTask(task);
+    task.project.removeTask(task);
 
     // maybe add this task to a hidden 'completed' project
         // except that adds a whole bunch of complications like 'having to re-check time
@@ -145,29 +275,13 @@ export function finishTask(task){
         // which would mean rewriting the whole button. click. script.
 }
 
-/*
-    so subtasks need some way to have their switch flicked ON generation
 
-    and what i WAS going to do, is right before the task is finished/deleted, grab all
-    its subtask switches, and just hand those through at the end of [date.entries()]
-    in 'processForm'
 
-    BUT. i have NO IDEA HOW TO HANDLE keeping that lined up if you, say, DELETED a task,
-    therefore not maintaining the same order
-    
-    so, i think, maybe just check titles. go in order, if title lines up, check it off.
-    has the potential to break if multiple share a name, for one.
-    AND, what if you EDIT THE NAME?
-    so that's wrong on two fronts.
 
-    which makes me think... we need something lined up WITH the subtask grid itself
-*/
 
 
 /*    
--editing SUBTASKS
-    (i think i'm fairly close on that BUT i'm not sure how i want to pass 'is the subtask
-    finished' through my form system)
+
 
 -ability to save/load data
     -(possibly a 'completed' tab where those finished tasks go, and can be un-completed)
@@ -179,9 +293,5 @@ export function finishTask(task){
 -the form not looking like shit
 
 -and alt text to images
-
--sometimes i'm still getting a time bug (like rn it's 10:18pm and if i make a task for
-3/11/2024, which it IS NOW, it gets set as a 3/10 task)
--date funk is also very demonstratable when editing a task, they always regress back
 
 */

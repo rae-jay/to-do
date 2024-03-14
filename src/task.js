@@ -1,4 +1,6 @@
 import { Project } from "./project";
+import { storeTask } from "./storage";
+import { createUniqueTag } from "./master";
 
 export class Task{
     /*
@@ -12,15 +14,14 @@ export class Task{
     and hands it off to here, so by here it should be clean
     */
     // 'subtasks' input should be an array of string names
-    constructor(title, dueDate, category, priority, description, subTasks){
+    constructor(title, dueDate, project, priority, description, subtasks){
         this.title = title;
-        this.date = new Date(dueDate);
-        this.date.setHours(0,0,0,0);
+        this.date = dueDate;
         this.description = description;
         this.priority = priority;
-        this.category = category;
-
-        category.addTask(this);
+        this.project = project;
+        
+        project.addTask(this);
         // console.log("Task constructor: ");
         // console.log(category);
 
@@ -28,13 +29,16 @@ export class Task{
         // console.log("date testing: ");
         // console.log(testDate);
         
-        this.subTasks = [];
-        if(subTasks){
-            subTasks.forEach( (task) =>{
-                this.subTasks.push(new SubTask(task));
+        this.subtasks = [];
+        if(subtasks){
+            subtasks.forEach( (task) =>{
+                this.subtasks.push(new SubTask(task.title, task.completed));
             })
         }
-        
+
+        this.uniqueTag = createUniqueTag("tk");
+
+        storeTask(this);
     }
 
     // otherDate is generally just 'today', i just wanted to handle that in master.js
@@ -73,15 +77,15 @@ export class Task{
         console.log(this.title);
         console.log(this.description);
         console.log("Priority: " + this.priority);
-        console.log("#" + this.category);
+        console.log("#" + this.project);
         // subtasks/dueDate
     }
 }
 
 class SubTask{
-    constructor(title){
+    constructor(title, completed){
         this.title = title;
-        this.complete = false;
+        this.complete = completed;
     }
 
     setCompletion(){
