@@ -3,7 +3,8 @@ console.log("working test");
 import { Task } from "./task";
 import { Project } from "./project";
 import { generateStartup } from "./interface";
-import { testRun, firstSetup } from "./storage";
+import { testRun, firstSetup, storeTask, storeProj, removeTask, removeProj,
+fetchProjects, fetchTasks } from "./storage";
 
 
 // i was keeping these, like. 'contained'. and it's ruining my life, so.
@@ -81,9 +82,11 @@ export function taskToObj(task){
 
 export function objToTask(task){
     return new Task(
+        task.uniqueTag,
         task.title, 
         task.date, 
-        task.project,
+        // task.project,
+        getProjectByTag(task.project),
         task.priority, 
         task.desc, 
         task.subtasks
@@ -99,8 +102,88 @@ export function projToObj(project){
 
 export function objToProj(project){
     return new Project(
+        project.uniqueTag,
         project.title,
     )
+}
+
+
+// honestly not sure what these are doing rn
+// takes in a Task(), converts to 
+export function taskStorage(task){
+    tags.tk.push(task.uniqueTag);
+}
+
+export function projectStorage(project){
+
+}
+
+
+function getProjectByTag(tag){
+    let project;
+    for(let i = 0; i < projects.length; i++){
+        if(projects[i].uniqueTag == tag){
+            project = projects[i];
+            break;
+        }
+    }
+    return project;
+}
+
+
+
+// this needs to be saved for later, because 'general' can't be made until AFTER loading
+const first =  firstSetup();
+
+
+projects.push(new Project(createUniqueTag("pj"), "General"));
+let testProject = new Project(createUniqueTag("pj"), "Proj");
+projects.push(testProject);
+
+// title date category priority description
+// (dates apparently need the DAY to be one number ahead, as though 1st = 0, but...months dont)
+let testTask = new Task(createUniqueTag("tk"), "last week", new Date("2024-03-09"), testProject, 2, "these are details", [{title:"Sub 1",completed:false}, {title:"Sub 2",completed:false}]);
+let testTask2 = new Task(createUniqueTag("tk"), "today", new Date("2024-03-12"), testProject, 1, "these are details");
+let testTask3 = new Task(createUniqueTag("tk"), "tomorrow", new Date("2024-03-13"), testProject, 2, "these are details");
+let testTask4 = new Task(createUniqueTag("tk"), "this week", new Date("2024-03-16"), testProject, 2, "these are details");
+let testTask5 = new Task(createUniqueTag("tk"), "over a week", new Date("2024-03-22"), testProject, 2, "these are details");
+let testTask6 = new Task(createUniqueTag("tk"), "late month", new Date("2024-03-28"), testProject, 2, "these are details");
+
+
+// so uh. how do we make 'general' once, and only once...
+
+
+projects.forEach((proj) => {
+    storeProj(projToObj(proj));
+})
+
+removeProj(testProject);
+
+storeTask(testTask);
+storeTask(testTask2);
+
+// removeTask(testTask2);
+
+console.log(fetchProjects());
+console.log(fetchTasks());
+
+
+function loadStorage(){
+    const loadProjects = fetchProjects();
+
+    // put tags in the 'tag' box, create objects
+
+    loadProjects.forEach( (proj) => {
+        tags.pj.push(proj.uniqueTag);
+
+        projects.push(objToProj(proj));
+    })
+
+    const loadTasks = fetchTasks();
+
+    loadTasks.forEach( (task) => {
+        objToTask(task);
+    })
 }
 
 
@@ -109,23 +192,6 @@ export function objToProj(project){
 
 
 
-
-
-firstSetup();
-
-
-projects.push(new Project("General"));
-let testProject = new Project("Proj");
-projects.push(testProject);
-
-// title date category priority description
-// (dates apparently need the DAY to be one number ahead, as though 1st = 0, but...months dont)
-let testTask = new Task("last week", new Date("2024-03-09"), testProject, 2, "these are details", [{title:"Sub 1",completed:false}, {title:"Sub 2",completed:false}]);
-let testTask2 = new Task("today", new Date("2024-03-12"), testProject, 1, "these are details");
-let testTask3 = new Task("tomorrow", new Date("2024-03-13"), testProject, 2, "these are details");
-let testTask4 = new Task("this week", new Date("2024-03-16"), testProject, 2, "these are details");
-let testTask5 = new Task("over a week", new Date("2024-03-22"), testProject, 2, "these are details");
-let testTask6 = new Task("late month", new Date("2024-03-28"), testProject, 2, "these are details");
 
 
 
@@ -220,6 +286,8 @@ export function processTaskForm(values, editSubtasks){
     processed.date.setDate(processed.date.getDate()+1);
 
 
+    processed.uniqueTag = createUniqueTag("tk");
+
     // dumb? yes. less dumb than it was two minutes ago? Also yes.
     const newTask = objToTask(processed);
 
@@ -255,7 +323,7 @@ export function processTaskForm(values, editSubtasks){
 
 
 export function processProjectForm(values){
-    const newProj = new Project(values[1]);
+    const newProj = new Project(createUniqueTag("pj"), values[1]);
     projects.push(newProj);
     return newProj;
 }

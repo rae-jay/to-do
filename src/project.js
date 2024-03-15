@@ -1,14 +1,16 @@
-import { createUniqueTag } from "./master";
+import { createUniqueTag, storeProject } from "./master";
 
 
 export class Project{
-    constructor(title){
+    constructor(uniqueTag, title){
         this.title = title;
         // this.color = color;
-
-        this.uniqueTag = createUniqueTag("pj");
         
         this.tasks = [];
+
+        this.uniqueTag = uniqueTag;
+
+        // storeProject(this);
     }
 
 

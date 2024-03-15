@@ -1,6 +1,5 @@
 import { Project } from "./project";
-import { storeTask } from "./storage";
-import { createUniqueTag } from "./master";
+import { createUniqueTag, storeTask } from "./master";
 
 export class Task{
     /*
@@ -14,7 +13,7 @@ export class Task{
     and hands it off to here, so by here it should be clean
     */
     // 'subtasks' input should be an array of string names
-    constructor(title, dueDate, project, priority, description, subtasks){
+    constructor(uniqueTag, title, dueDate, project, priority, description, subtasks){
         this.title = title;
         this.date = dueDate;
         this.description = description;
@@ -36,9 +35,9 @@ export class Task{
             })
         }
 
-        this.uniqueTag = createUniqueTag("tk");
+        this.uniqueTag = uniqueTag;
 
-        storeTask(this);
+        // storeTask(this);
     }
 
     // otherDate is generally just 'today', i just wanted to handle that in master.js
