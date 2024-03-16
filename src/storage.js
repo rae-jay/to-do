@@ -17,7 +17,7 @@ export function firstSetup(){
     if(canStorage){
 
 // temporary and for bug hunting
-        localStorage.clear();
+        // localStorage.clear();
 
         // i MAY want to set up a thing where i don't have to grab/reset these directly
         // every time and instead maybe have a tag list like this for tasks/projects
@@ -48,104 +48,57 @@ export function firstSetup(){
 }
 
 
-export function storeTask(task){
+
+
+export function storeSomething(thing, type){
     if(canStorage){
-        // localStorage.setItem("tasktest2", JSON.stringify({ title : "something" }));
-        // console.log(localStorage.getItem("tasktest2"));
-        // localStorage.setItem(task.uniqueTag, JSON.stringify(taskClass));
-        // console.log(localStorage.getItem("tasktest"));
+        // this is a Hot Mess but i'd really just like it to work so
 
+        // console.log("storage 1");
+        // convert the Thing() to a simplified object
+        let converted;
+        type == "proj" ? converted = projToObj(thing) 
+                    : converted = taskToObj(thing);
+        // converted = JSON.stringify(converted);
+        // console.log(converted);
 
-        // convert the Task() to a simplified object
-        // const convertedTask = taskToObj(task);
-        // console.log(convertedTask);
+        // console.log("storage 2");
+        // store that object's tag in the localStorage tag[]
+        let tagArrayName;
+        type == "proj" ? tagArrayName = "projectTags" : tagArrayName = "taskTags";
 
-        // // store that object's tag in the localStorage tag[]
-        // const tagArray = JSON.parse(localStorage.getItem("taskTags"));
-        // tagArray.push(convertedTask.uniqueTag);
-        // localStorage.setItem("taskTags", tagArray);
-
-        // // add that simplified object to localStorage
-        // localStorage.setItem(convertedTask.uniqueTag, convertedTask);
-        storeSomething(task, "task");
-    }
-}
-
-export function removeTask(task){
-    if(canStorage){
-        // const tagArray = JSON.parse(localStorage.getItem("taskTags"));
-
-        // const pos = tagArray.indexOf(task.uniqueTag);
-        // if(pos >= 0){
-        //     tagArray.splice(pos, 1);
-        //     localStorage.setItem("taskTags", tagArray);
-        // }
-        // else{
-        //     console.log("something wrong in removeTask");
-        // }
-
-        // localStorage.removeItem(task.uniqueTag);
-        removeSomething(task, "task");
-    }
-}
-
-
-export function storeProj(proj){
-    if(canStorage){
-        storeSomething(proj, "proj");
-    }
-}
-
-export function removeProj(proj){
-    if(canStorage){
-        removeSomething(proj, "proj");
-    }
-}
-
-
-function storeSomething(thing, type){
-    // this is a Hot Mess but i'd really just like it to work so
-
-    // console.log("storage 1");
-    // convert the Thing() to a simplified object
-    let converted;
-    type == "proj" ? converted = projToObj(thing) 
-                   : converted = taskToObj(thing);
-    // converted = JSON.stringify(converted);
-    // console.log(converted);
-
-    // console.log("storage 2");
-    // store that object's tag in the localStorage tag[]
-    let tagArrayName;
-    type == "proj" ? tagArrayName = "projectTags" : tagArrayName = "taskTags";
-
-    const tagArray = JSON.parse(localStorage.getItem(tagArrayName));
-    tagArray.push(converted.uniqueTag);
-    localStorage.setItem(tagArrayName, JSON.stringify(tagArray));
-
-    // console.log("storage 3");
-    // add that simplified object to localStorage
-    localStorage.setItem(converted.uniqueTag, JSON.stringify(converted));
-    
-    // console.log("storage 4");
-}
-
-function removeSomething(thing, type){
-    let tagArrayName;
-    type == "proj" ? tagArrayName = "projectTags" : tagArrayName = "taskTags";
-
-    const tagArray = JSON.parse(localStorage.getItem(tagArrayName));
-    
-    const pos = tagArray.indexOf(thing.uniqueTag);
-    if(pos >= 0){
-        tagArray.splice(pos, 1);
+        const tagArray = JSON.parse(localStorage.getItem(tagArrayName));
+        tagArray.push(converted.uniqueTag);
         localStorage.setItem(tagArrayName, JSON.stringify(tagArray));
-    }
-    else{
-        console.log("something wrong in removeSomething");
-    }
 
-    localStorage.removeItem(thing.uniqueTag);
+        // console.log("storage 3");
+        // add that simplified object to localStorage
+        localStorage.setItem(converted.uniqueTag, JSON.stringify(converted));
+        
+        // console.log("storage 4");
+    }
+    
+}
+
+export function removeSomething(thing, type){
+    if(canStorage){
+        let tagArrayName;
+        type == "proj" ? tagArrayName = "projectTags" : tagArrayName = "taskTags";
+    
+        const tagArray = JSON.parse(localStorage.getItem(tagArrayName));
+        
+        const pos = tagArray.indexOf(thing.uniqueTag);
+        if(pos >= 0){
+            tagArray.splice(pos, 1);
+            localStorage.setItem(tagArrayName, JSON.stringify(tagArray));
+        }
+        else{
+            console.log("something wrong in removeSomething");
+        }
+    
+        localStorage.removeItem(thing.uniqueTag);
+    }
+    
 }
 
 
@@ -170,6 +123,18 @@ export function fetchProjects(){
     })
 
     return resultArray;
+}
+
+
+export function changeSomething(thing, type){
+    let converted;
+    type == "proj" ? converted = projToObj(thing) 
+                : converted = taskToObj(thing);
+
+
+    localStorage.setItem(thing.uniqueTag, JSON.stringify(converted));
+
+    console.log(JSON.stringify(converted));
 }
 
 

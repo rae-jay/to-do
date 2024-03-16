@@ -1,5 +1,6 @@
 import { Project } from "./project";
 import { createUniqueTag, storeTask } from "./master";
+import { changeSomething } from "./storage";
 
 export class Task{
     /*
@@ -31,13 +32,11 @@ export class Task{
         this.subtasks = [];
         if(subtasks){
             subtasks.forEach( (task) =>{
-                this.subtasks.push(new SubTask(task.title, task.completed));
+                this.subtasks.push(new SubTask(task.title, task.complete, this));
             })
         }
 
         this.uniqueTag = uniqueTag;
-
-        // storeTask(this);
     }
 
     // otherDate is generally just 'today', i just wanted to handle that in master.js
@@ -73,22 +72,30 @@ export class Task{
 
 
     testDisplay(){
+        console.log("s~~~~~~~");
         console.log(this.title);
+        console.log(this.date);
         console.log(this.description);
         console.log("Priority: " + this.priority);
-        console.log("#" + this.project);
+        console.log(this.project);
+        console.log("e~~~~~~~");
         // subtasks/dueDate
     }
 }
 
 class SubTask{
-    constructor(title, completed){
+    constructor(title, complete, parentTask){
         this.title = title;
-        this.complete = completed;
+        this.complete = complete;
+
+        this.parentTask = parentTask;
     }
 
     setCompletion(){
         this.complete ? this.complete = false : this.complete = true;
+
+        changeSomething(this.parentTask);
+
         return this.complete;
     }
 }

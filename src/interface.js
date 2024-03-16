@@ -272,9 +272,9 @@ function generateTaskForm(task){
     // since 'select' seems to only store a string value, which will need to translate
     // back into a project when the task is actually made
     for(let i = 0; i < projects.length; i++){
-        projectSelects.push([projects[i].title,i]);
+        projectSelects.push([projects[i].title, projects[i].uniqueTag]);
 
-        if(task && projects[i].title == task.project.title){
+        if(task && projects[i].uniqueTag == task.project.uniqueTag){
             indexForEditForm = i;
         }
     }
@@ -287,7 +287,7 @@ function generateTaskForm(task){
         ["High", 2],
     ]);
 
-    const descInpt = createTextAreaInput("taskDesc", "desc", "Description", "", 34, 4, newForm);
+    const descInpt = createTextAreaInput("taskDesc", "description", "Description", "", 34, 4, newForm);
 
 
     // im now messing with dark magics i do not fully comprehend

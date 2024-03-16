@@ -1,4 +1,4 @@
-import { createUniqueTag, storeProject } from "./master";
+import { createUniqueTag, projectSt } from "./master";
 
 
 export class Project{
@@ -9,8 +9,6 @@ export class Project{
         this.tasks = [];
 
         this.uniqueTag = uniqueTag;
-
-        // storeProject(this);
     }
 
 
@@ -58,9 +56,11 @@ export class Project{
 
 
     testDisplay(){
-        console.log("-----");
+        console.log("s-----");
+        console.log(this.title);
+        console.log("tasks: ");
         this.tasks.forEach( (taskskssk) => console.log(taskskssk.title));
-        console.log("-----");
+        console.log("e-----");
     }
 
 

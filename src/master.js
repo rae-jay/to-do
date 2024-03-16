@@ -3,8 +3,8 @@ console.log("working test");
 import { Task } from "./task";
 import { Project } from "./project";
 import { generateStartup } from "./interface";
-import { testRun, firstSetup, storeTask, storeProj, removeTask, removeProj,
-fetchProjects, fetchTasks } from "./storage";
+import { testRun, firstSetup, storeSomething, removeSomething,
+fetchProjects, fetchTasks, changeSomething } from "./storage";
 
 
 // i was keeping these, like. 'contained'. and it's ruining my life, so.
@@ -69,14 +69,18 @@ function randomLetter(){
 // projects is gonna work...
 
 export function taskToObj(task){
+    const simpSubtask = [];
+    task.subtasks.forEach((task) => {
+        simpSubtask.push({title: task.title, complete: task.complete});
+    })
     return { 
         uniqueTag : task.uniqueTag,
         title : task.title, 
         date : task.date, 
         project : projToObj(task.project),
         priority : task.priority, 
-        desc : task.description, 
-        subtasks : task.subtasks 
+        description : task.description, 
+        subtasks : simpSubtask
     }
 }
 
@@ -84,11 +88,11 @@ export function objToTask(task){
     return new Task(
         task.uniqueTag,
         task.title, 
-        task.date, 
+        new Date(task.date), 
         // task.project,
-        getProjectByTag(task.project),
+        fetchProjectByTag(task.project.uniqueTag),
         task.priority, 
-        task.desc, 
+        task.description, 
         task.subtasks
         );
 }
@@ -110,16 +114,18 @@ export function objToProj(project){
 
 // honestly not sure what these are doing rn
 // takes in a Task(), converts to 
-export function taskStorage(task){
+function taskStorage(task){
     tags.tk.push(task.uniqueTag);
+    storeSomething(taskToObj(task), "task");
 }
 
-export function projectStorage(project){
-
+function projectStorage(project){
+    tags.pj.push(project.uniqueTag);
+    storeSomething(projToObj(project), "proj");
 }
 
 
-function getProjectByTag(tag){
+function fetchProjectByTag(tag){
     let project;
     for(let i = 0; i < projects.length; i++){
         if(projects[i].uniqueTag == tag){
@@ -136,36 +142,34 @@ function getProjectByTag(tag){
 const first =  firstSetup();
 
 
-projects.push(new Project(createUniqueTag("pj"), "General"));
-let testProject = new Project(createUniqueTag("pj"), "Proj");
-projects.push(testProject);
+// let testProject = new Project(createUniqueTag("pj"), "Proj");
+// projects.push(testProject);
 
 // title date category priority description
 // (dates apparently need the DAY to be one number ahead, as though 1st = 0, but...months dont)
-let testTask = new Task(createUniqueTag("tk"), "last week", new Date("2024-03-09"), testProject, 2, "these are details", [{title:"Sub 1",completed:false}, {title:"Sub 2",completed:false}]);
-let testTask2 = new Task(createUniqueTag("tk"), "today", new Date("2024-03-12"), testProject, 1, "these are details");
-let testTask3 = new Task(createUniqueTag("tk"), "tomorrow", new Date("2024-03-13"), testProject, 2, "these are details");
-let testTask4 = new Task(createUniqueTag("tk"), "this week", new Date("2024-03-16"), testProject, 2, "these are details");
-let testTask5 = new Task(createUniqueTag("tk"), "over a week", new Date("2024-03-22"), testProject, 2, "these are details");
-let testTask6 = new Task(createUniqueTag("tk"), "late month", new Date("2024-03-28"), testProject, 2, "these are details");
+// let testTask = new Task(createUniqueTag("tk"), "last week", new Date("2024-03-09"), testProject, 2, "these are details", [{title:"Sub 1",completed:false}, {title:"Sub 2",completed:false}]);
+// let testTask2 = new Task(createUniqueTag("tk"), "today", new Date("2024-03-12"), testProject, 1, "these are details");
+// let testTask3 = new Task(createUniqueTag("tk"), "tomorrow", new Date("2024-03-13"), testProject, 2, "these are details");
+// let testTask4 = new Task(createUniqueTag("tk"), "this week", new Date("2024-03-16"), testProject, 2, "these are details");
+// let testTask5 = new Task(createUniqueTag("tk"), "over a week", new Date("2024-03-22"), testProject, 2, "these are details");
+// let testTask6 = new Task(createUniqueTag("tk"), "late month", new Date("2024-03-28"), testProject, 2, "these are details");
 
 
-// so uh. how do we make 'general' once, and only once...
 
 
-projects.forEach((proj) => {
-    storeProj(projToObj(proj));
-})
+// projects.forEach((proj) => {
+//     storeProj(projToObj(proj));
+// })
 
-removeProj(testProject);
+// removeProj(testProject);
 
-storeTask(testTask);
-storeTask(testTask2);
+// storeTask(testTask);
+// storeTask(testTask2);
 
-// removeTask(testTask2);
+// // removeTask(testTask2);
 
-console.log(fetchProjects());
-console.log(fetchTasks());
+// console.log(fetchProjects());
+// console.log(fetchTasks());
 
 
 function loadStorage(){
@@ -173,20 +177,41 @@ function loadStorage(){
 
     // put tags in the 'tag' box, create objects
 
+    // console.log("load START");
     loadProjects.forEach( (proj) => {
         tags.pj.push(proj.uniqueTag);
 
-        projects.push(objToProj(proj));
+        let testing = objToProj(proj);
+        // console.log(testing);
+        // console.log("proj: ");
+        // testing.testDisplay();
+
+        projects.push(testing);
     })
 
+    // console.log("load 1");
     const loadTasks = fetchTasks();
 
+    // console.log("load 2");
     loadTasks.forEach( (task) => {
-        objToTask(task);
+        tags.tk.push(task.uniqueTag);
+
+        let testing = objToTask(task);
+        // console.log(testing);
+        // console.log("task: ");
+        // testing.testDisplay();
     })
+
+    // console.log("load 3");
+
+    if(first == true){
+        const gen = new Project(createUniqueTag("pj"), "General");
+        projects.push(gen);
+        projectStorage(gen);
+    }
 }
 
-
+loadStorage();
 
 
 
@@ -215,8 +240,9 @@ generateStartup(todayDate, projects, timeProjects);
 
 function createTimeProjects(){
 
-    timeProjects.push(new Project("Today"));
-    timeProjects.push(new Project("This Week"));
+    // these don't really need a tag but uh
+    timeProjects.push(new Project(createUniqueTag("pj"), "Today"));
+    timeProjects.push(new Project(createUniqueTag("pj"), "This Week"));
 
     
 
@@ -269,7 +295,7 @@ export function processTaskForm(values, editSubtasks){
                 }
 
                 if(i < editSubtasks.length){
-                    processed.subtasks.push({ title: val[1], completed : editSubtasks[i][1] });
+                    processed.subtasks.push({ title: val[1], complete : editSubtasks[i][1] });
                     editSubtasks.splice(i,1);
                 }
             }
@@ -279,7 +305,7 @@ export function processTaskForm(values, editSubtasks){
         }
     })
 
-    processed.project = projects[processed.project];
+    processed.project = fetchProjectByTag(processed.project);
 
     processed.date = new Date(processed.date);
     processed.date.setHours(0,0,0,0);
@@ -292,6 +318,7 @@ export function processTaskForm(values, editSubtasks){
     const newTask = objToTask(processed);
 
 
+    taskStorage(newTask);
 
 
     addToTimeProjects(newTask);
@@ -325,6 +352,9 @@ export function processTaskForm(values, editSubtasks){
 export function processProjectForm(values){
     const newProj = new Project(createUniqueTag("pj"), values[1]);
     projects.push(newProj);
+
+    projectStorage(newProj);
+
     return newProj;
 }
 
@@ -336,6 +366,8 @@ export function finishTask(task){
 
     task.project.removeTask(task);
 
+    removeSomething(task, "task"); 
+
     // maybe add this task to a hidden 'completed' project
         // except that adds a whole bunch of complications like 'having to re-check time
         // projects' and 'making a whole new button-click script'
@@ -343,7 +375,7 @@ export function finishTask(task){
         // which would mean rewriting the whole button. click. script.
 }
 
-
+// editing seems VERY CLOSE to working, i really just need subtasks to keep completion...
 
 
 
