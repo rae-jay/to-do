@@ -1,6 +1,12 @@
 import { projects, timeProjects, 
          processTaskForm, processProjectForm, finishTask } from './master';
 import './style.css';
+import DotsVertical from "./graphics/dots-vertical.svg";
+import CheckboxBlankCircle from "./graphics/checkbox-blank-circle-outline.svg";
+import CheckboxOutline from "./graphics/checkbox-outline.svg";
+import CheckboxBlankOutline from "./graphics/checkbox-blank-outline.svg";
+
+
 
 // export function testGen(){
 
@@ -101,7 +107,7 @@ function generateTaskObject(task){
 
     const taskMain = createDocElement("div", "taskMain", "", newTask);
     taskMain.classList.add(priorityStyles[task.priority]);
-    const checkBox = createDocElement("img", "", "../src/graphics/checkbox-blank-circle-outline.svg", taskMain);
+    const checkBox = createDocElement("img", "", CheckboxBlankCircle, taskMain);
     checkBox.addEventListener("click", () => {        
         finishTask(task);
 
@@ -111,7 +117,7 @@ function generateTaskObject(task){
     createDocElement("div", "taskTitle", task.title, taskMain);
     createDocElement("div", "", dateForDisplay(task.date), taskMain);
 
-    const editBtn = createDocElement("img", "", "../src/graphics/dots-vertical.svg", taskMain)
+    const editBtn = createDocElement("img", "", DotsVertical, taskMain)
     editBtn.addEventListener("click", () => {
         clearMainContent();
         generateTaskForm(task);
@@ -129,13 +135,13 @@ function generateSubtask(task, parent){
     const newTask = createDocElement("div", "subTask", "", parent);
 
     let checkImg;
-    task.complete ? checkImg = "../src/graphics/checkbox-outline.svg" : 
-    checkImg = "../src/graphics/checkbox-blank-outline.svg";
+    task.complete ? checkImg = CheckboxOutline : 
+    checkImg = CheckboxBlankOutline;
     
     const checkBox = createDocElement("img", "", checkImg, newTask);
     checkBox.addEventListener("click", () => {
-        task.setCompletion() ? checkBox.src = "../src/graphics/checkbox-outline.svg" :
-        checkBox.src = "../src/graphics/checkbox-blank-outline.svg";
+        task.setCompletion() ? checkBox.src = CheckboxOutline :
+        checkBox.src = CheckboxBlankOutline;
     })
 
     createDocElement("div", "", task.title, newTask);

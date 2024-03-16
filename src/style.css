@@ -84,7 +84,10 @@ header{
 
 .branding > img{
     width: 2ch;
-    height: auto;
+    height: 2ch;
+
+    /* src: url("./graphics/land-plots.svg"); */
+    background-image: url("./graphics/land-plots.svg");
 }
 
 
@@ -139,10 +142,19 @@ header{
 
 .addButtons > img{
     width: 4ch;
-    height: auto;
+    height:4ch;
+    /* height: auto; */
+
 }
 
+#addProjectButton{
 
+    background-image: url("./graphics/addBtns/folder-plus-outline.svg");
+}
+
+#addTaskButton{
+    background-image: url("./graphics/addBtns/plus-circle-outline.svg");
+}
 
 
 
